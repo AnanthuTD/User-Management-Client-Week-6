@@ -1,12 +1,17 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
-import { Outlet, useNavigate, useOutletContext } from "react-router-dom";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { Outlet, useNavigate } from "react-router-dom";
 import { User } from "../types";
 
 interface AuthContextType {
 	user: User | null;
 	setUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
+
+const AuthContext = createContext<AuthContextType>({
+	user: null,
+	setUser: () => {},
+});
 
 function AuthProvider() {
 	const [authUser, setAuthUser] = useState<User | null>(null);
@@ -35,22 +40,22 @@ function AuthProvider() {
 	return (
 		<>
 			{!isAuthenticating ? (
-				<Outlet
-					context={
+				<AuthContext.Provider
+					value={
 						{
 							user: authUser,
 							setUser: setAuthUser,
 						} satisfies AuthContextType
 					}
-				/>
+				>
+					<Outlet />
+				</AuthContext.Provider>
 			) : null}
 		</>
 	);
 }
 
-export const UseUser = (): AuthContextType => {
-	const data = useOutletContext<AuthContextType>();
-	console.log(data);
-	return data;
-};
+export const UseUser = (): AuthContextType =>
+	useContext<AuthContextType>(AuthContext);
+
 export default AuthProvider;
