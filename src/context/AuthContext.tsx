@@ -17,25 +17,25 @@ function AuthProvider() {
 	const [authUser, setAuthUser] = useState<User | null>(null);
 	const [isAuthenticating, setAuthenticating] = useState(true);
 	const navigate = useNavigate();
-
-	const authenticateUser = async () => {
-		try {
-			const response = await axios.get("/api/auth", {
-				withCredentials: true,
-			});
-
-			if (response.data?.user) setAuthUser(response.data.user);
-			throw new Error("no user found");
-		} catch (error) {
-			return navigate("/login", { replace: true });
-		} finally {
-			setAuthenticating(false);
-		}
-	};
-
+	
 	useEffect(() => {
+		async function authenticateUser(): Promise<void> {
+			try {
+				const response = await axios.get("/api/auth", {
+					withCredentials: true,
+				});
+
+				if (response.data?.user) {
+					setAuthUser(response.data.user);
+				} else throw new Error("no user found");
+			} catch (error) {
+				navigate("/login", { replace: true });
+			} finally {
+				setAuthenticating(false);
+			}
+		}
 		authenticateUser();
-	}, []);
+	}, [navigate]);
 
 	return (
 		<>
