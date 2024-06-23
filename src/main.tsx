@@ -6,6 +6,9 @@ import "./index.css";
 import UserManagement from "./pages/admin/Dashboard";
 import Login from "./pages/auth/Login";
 import AuthProvider from "./context/AuthContext";
+import Profile from "./pages/admin/Profile";
+import Dashboard from "./pages/user/Dashboard";
+import SignUp from "./pages/auth/SignUp";
 
 const router = createBrowserRouter([
 	{
@@ -13,11 +16,15 @@ const router = createBrowserRouter([
 		element: <AuthProvider />,
 		children: [
 			{
-				path: "/login",
+				path: "sign-up",
+				element: <SignUp />,
+			},
+			{
+				path: "login",
 				element: <Login />,
 			},
 			{
-				path: "/admin",
+				path: "admin",
 				element: <Layout />,
 				children: [
 					{
@@ -25,10 +32,14 @@ const router = createBrowserRouter([
 						element: <UserManagement />,
 					},
 					{
-						path: "account",
-						element: <div>Account Management</div>,
+						path: "profile",
+						element: <Profile />,
 					},
 				],
+			},
+			{
+				path: "dashboard",
+				element: <Dashboard />,
 			},
 		],
 	},
@@ -36,6 +47,6 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
 	<React.StrictMode>
-		<RouterProvider router={router} />
+		<RouterProvider router={router} future={{ v7_startTransition: true }} />
 	</React.StrictMode>
 );
