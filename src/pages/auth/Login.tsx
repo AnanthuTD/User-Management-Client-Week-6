@@ -1,12 +1,20 @@
-import { Card, Form, Input, Button } from "antd";
+import { Card, Form, Input, Button, Alert, Typography } from "antd";
 import axios from "axios";
 import { UseUser } from "../../context/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { useState } from "react";
 
+interface LoginError {
+	msg?: string;
+	code?: string;
+	error?: boolean;
+}
 const Login = () => {
 	const { user, setUser } = UseUser();
+	const [error, setError] = useState<LoginError | null>(null);
 
 	const onFinish = async (values: { email: string; password: string }) => {
+		setError(null);
 		try {
 			const res = await axios.post("/api/auth/login", values, {
 				withCredentials: true,
@@ -17,15 +25,13 @@ const Login = () => {
 			}
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
-				console.log(error.response.data.msg);
+				setError(error.response.data);
+				console.error(error.response.data.msg);
 			} else {
+				setError({ msg: "unexpected error" });
 				console.error(error);
 			}
 		}
-	};
-
-	const onFinishFailed = (errorInfo: { email: string; password: string }) => {
-		console.log("Failed:", errorInfo);
 	};
 
 	return user ? (
@@ -43,7 +49,7 @@ const Login = () => {
 			}}
 		>
 			<Card style={{ width: 500 }} title="User Management">
-				<Form onFinish={onFinish} onFinishFailed={onFinishFailed}>
+				<Form onFinish={onFinish}>
 					<Form.Item
 						name={"email"}
 						required={true}
@@ -65,8 +71,8 @@ const Login = () => {
 								message: "Please input your password!",
 							},
 							{
-								/* pattern:
-									/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/, */
+								pattern:
+									/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/,
 								message:
 									"Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.",
 							},
@@ -84,6 +90,16 @@ const Login = () => {
 						</Button>
 					</Form.Item>
 				</Form>
+				{error && (
+					<Alert
+						type={"error"}
+						message={<Typography.Text>{error.msg}</Typography.Text>}
+					/>
+				)}
+
+				<Typography.Text>
+					Not a user? <Link to={"/sign-up"}>sign-up now</Link>
+				</Typography.Text>
 			</Card>
 		</div>
 	);
