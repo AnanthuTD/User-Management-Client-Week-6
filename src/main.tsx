@@ -9,6 +9,7 @@ import AuthProvider from "./context/AuthContext";
 import Profile from "./pages/admin/Profile";
 import Dashboard from "./pages/user/Dashboard";
 import SignUp from "./pages/auth/SignUp";
+import CreateUser from "./pages/admin/CreateUser";
 
 const router = createBrowserRouter([
 	{
@@ -34,6 +35,10 @@ const router = createBrowserRouter([
 					{
 						path: "profile",
 						element: <Profile />,
+					},
+					{
+						path: "create-user",
+						element: <CreateUser />,
 					},
 				],
 			},
