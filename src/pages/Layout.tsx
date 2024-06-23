@@ -1,17 +1,15 @@
 import { Link, Outlet } from "react-router-dom";
 import React from "react";
-import { Breadcrumb, Layout, Menu, theme } from "antd";
-import { UseUser } from "../context/AuthContext";
+import { Layout, Menu, theme } from "antd";
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content } = Layout;
 
 const items = [
 	{ key: "user", label: <Link to={"/admin/user"}>User</Link> },
-	{ key: "account", label: <Link to={"/admin/account"}>Account</Link> },
+	{ key: "profile", label: <Link to={"/admin/profile"}>Profile</Link> },
 ];
 
 const App: React.FC = () => {
-	const { user } = UseUser();
 	const {
 		token: { colorBgContainer, borderRadiusLG },
 	} = theme.useToken();
@@ -19,7 +17,7 @@ const App: React.FC = () => {
 	return (
 		<Layout style={{ height: "100vh" }}>
 			<Header style={{ display: "flex", alignItems: "center" }}>
-				<div className="demo-logo">{JSON.stringify(user)}</div>
+				<div className="demo-logo"/>
 				<Menu
 					theme="dark"
 					mode="horizontal"
@@ -29,11 +27,6 @@ const App: React.FC = () => {
 				/>
 			</Header>
 			<Content style={{ padding: "0 48px" }}>
-				{/* <Breadcrumb style={{ margin: "16px 0" }}>
-					<Breadcrumb.Item>Home</Breadcrumb.Item>
-					<Breadcrumb.Item>List</Breadcrumb.Item>
-					<Breadcrumb.Item>App</Breadcrumb.Item>
-				</Breadcrumb> */}
 				<div
 					style={{
 						background: colorBgContainer,
@@ -45,9 +38,6 @@ const App: React.FC = () => {
 					<Outlet />
 				</div>
 			</Content>
-			{/* <Footer style={{ textAlign: "center" }}>
-				Ant Design ©{new Date().getFullYear()} Created by Ant UED
-			</Footer> */}
 		</Layout>
 	);
 };
