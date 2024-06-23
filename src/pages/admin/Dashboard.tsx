@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
 	Table,
 	Form,
@@ -10,10 +10,13 @@ import {
 	Select,
 	message,
 } from "antd";
-import type { TableProps } from "antd";
+import type { TableColumnsType, TableProps } from "antd";
 import axios from "axios";
 import { User } from "../../types";
 import { UseUser } from "../../context/AuthContext";
+import { InputRef, TableColumnType, Space } from "antd";
+import { FilterDropdownProps } from "antd/es/table/interface";
+import { SearchOutlined } from "@ant-design/icons";
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
 	editing: boolean;
@@ -24,6 +27,19 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
 	index: number;
 	key: string;
 	fallbackDataIndex: string;
+}
+
+interface ExtendedUser extends User{
+	lastName: string;
+	firstName: string;
+}
+
+interface EditableColumnType
+	extends Omit<TableColumnsType<User>[number], "children"> {
+	editable?: boolean;
+	fallBackDataIndex?: string;
+	// dataIndex?: string;
+	// title: string;
 }
 
 const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
@@ -85,7 +101,86 @@ const App: React.FC = () => {
 	const [form] = Form.useForm();
 	const [data, setData] = useState<User[] | []>([]);
 	const [editingKey, setEditingKey] = useState("");
-	// const { user } = UseUser();
+	const { user } = UseUser();
+	const searchInput = useRef<InputRef>(null);
+
+	const handleSearch = async (
+		selectedKeys: string[],
+		confirm: FilterDropdownProps["confirm"],
+		dataIndex: string
+	) => {
+		confirm();
+		try {
+			const res = await axios.get(
+				`/api/admin/user/search?col=${dataIndex}&query=${selectedKeys[0]}`
+			);
+			setData(res.data?.users);
+		} catch (error) {
+			message.error("Failed to search!");
+		}
+	};
+
+	const handleReset = (clearFilters: () => void) => {
+		clearFilters();
+		loadUser();
+	};
+
+	const getColumnSearchProps = (dataIndex: string): TableColumnType<User> => ({
+		filterDropdown: ({
+			setSelectedKeys,
+			selectedKeys,
+			confirm,
+			clearFilters,
+			close,
+		}) => (
+			<div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+				<Input
+					ref={searchInput}
+					placeholder={`Search ${dataIndex}`}
+					value={selectedKeys[0]}
+					onChange={(e) =>
+						setSelectedKeys(e.target.value ? [e.target.value] : [])
+					}
+					onPressEnter={() =>
+						handleSearch(selectedKeys as string[], confirm, dataIndex)
+					}
+					style={{ marginBottom: 8, display: "block" }}
+				/>
+				<Space>
+					<Button
+						type="primary"
+						onClick={() =>
+							handleSearch(selectedKeys as string[], confirm, dataIndex)
+						}
+						icon={<SearchOutlined />}
+						size="small"
+						style={{ width: 90 }}
+					>
+						Search
+					</Button>
+					<Button
+						onClick={() => clearFilters && handleReset(clearFilters)}
+						size="small"
+						style={{ width: 90 }}
+					>
+						Reset
+					</Button>
+					<Button
+						type="link"
+						size="small"
+						onClick={() => {
+							close();
+						}}
+					>
+						close
+					</Button>
+				</Space>
+			</div>
+		),
+		filterIcon: (filtered: boolean) => (
+			<SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+		),
+	});
 
 	async function loadUser() {
 		try {
@@ -115,20 +210,29 @@ const App: React.FC = () => {
 
 	const save = async (id: string) => {
 		try {
-			const row = (await form.validateFields()) as User;
+			const row = (await form.validateFields()) as ExtendedUser;
 
 			const newData = [...data];
 			const index = newData.findIndex((item) => id === item._id);
 			if (index > -1) {
 				const item = newData[index];
-				newData.splice(index, 1, {
+
+				const newItem = {
 					...item,
 					...row,
-				});
+					name: {
+						firstName: row.firstName,
+						lastName: row.lastName,
+					},
+				};
+				newData.splice(index, 1, newItem);
 				try {
-					await axios.patch("/api/admin/user", { user: row });
+					const res = await axios.patch("/api/admin/user", {
+						user: newItem,
+					});
 					setData(newData);
 					setEditingKey("");
+					message.success(res.data.msg);
 				} catch (error) {
 					if (axios.isAxiosError(error)) {
 						message.error(
@@ -144,16 +248,17 @@ const App: React.FC = () => {
 	};
 
 	const handleDelete = async (id: string) => {
-		/* if (user._id === id)
-			return message.warning("Are you trying to delete yourself?"); */
+		if (user?._id === id)
+			return message.warning("Are you trying to delete yourself?");
 		try {
 			const index = data.findIndex((item) => item._id === id);
 			if (index > -1) {
 				try {
-					await axios.delete("/api/admin/user/" + id);
+					const res = await axios.delete("/api/admin/user/" + id);
 					const newData = [...data];
 					newData.splice(index, 1);
 					setData(newData);
+					message.success(res.data.msg);
 				} catch (error) {
 					if (axios.isAxiosError(error)) {
 						message.error(
@@ -169,13 +274,14 @@ const App: React.FC = () => {
 		}
 	};
 
-	const columns = [
+	const columns: EditableColumnType[] = [
 		{
 			title: "Id",
 			width: 100,
 			dataIndex: "_id",
 			key: "_id",
 			fixed: "left",
+			...getColumnSearchProps("_id"),
 		},
 		{
 			title: "First Name",
@@ -184,6 +290,7 @@ const App: React.FC = () => {
 			editable: true,
 			render: (record: User) => <span>{record?.name?.firstName || ""}</span>,
 			fallBackDataIndex: "firstName",
+			...getColumnSearchProps("firstName"),
 		},
 		{
 			title: "Last Name",
@@ -192,6 +299,7 @@ const App: React.FC = () => {
 			editable: true,
 			render: (record: User) => <span>{record?.name?.lastName || ""}</span>,
 			fallBackDataIndex: "lastName",
+			...getColumnSearchProps("lastName"),
 		},
 		{
 			title: "Email",
@@ -199,6 +307,7 @@ const App: React.FC = () => {
 			key: "email",
 			editable: true,
 			width: 150,
+			...getColumnSearchProps("email"),
 		},
 		{
 			title: "Role",
@@ -206,13 +315,14 @@ const App: React.FC = () => {
 			key: "role",
 			editable: true,
 			width: 70,
+			...getColumnSearchProps("role"),
 		},
 		{
 			title: "Action",
 			key: "operation",
 			fixed: "right",
 			width: 100,
-			render: (_: any, record: User) => {
+			render: (_: string, record: User) => {
 				const editable = isEditing(record);
 				return editable ? (
 					<span>
