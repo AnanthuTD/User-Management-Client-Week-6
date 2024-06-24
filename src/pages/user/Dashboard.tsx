@@ -14,13 +14,13 @@ interface FormData {
 const Profile = () => {
 	const [form] = Form.useForm();
 	const { user, setUser } = UseUser();
-	const navigate = useNavigate();
+	const navigate = useNavigate(); 
 
 	const onFinish = async (values: FormData) => {
 		try {
 			await axios.put("/api/user/profile", values);
 			const response = await axios.get("/api/auth");
-			setUser(response.data.profile);
+			setUser(response.data);
 			message.success("Profile updated successfully");
 		} catch (error) {
 			console.error("Failed to update profile:", error);
