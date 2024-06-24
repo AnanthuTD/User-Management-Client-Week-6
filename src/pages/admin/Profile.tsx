@@ -20,9 +20,7 @@ const Profile = () => {
 		try {
 			await axios.put("/api/admin/profile", values);
 			const response = await axios.get("/api/auth");
-			console.log(response.data.user);
-			
-			setUser(response.data.profile);
+			setUser(response.data);
 			message.success("Profile updated successfully");
 		} catch (error) {
 			console.error("Failed to update profile:", error);
