@@ -83,6 +83,7 @@ const Login = () => {
 			<Card style={{ width: 500 }} title="Login">
 				<GoogleLogin
 					onSuccess={responseMessage}
+					// @ts-ignore
 					onError={errorMessage}
 					useOneTap
 					use_fedcm_for_prompt={true}
