@@ -1,10 +1,20 @@
-import { Card, Form, Input, Button, Alert, Typography, message } from "antd";
+import {
+	Card,
+	Form,
+	Input,
+	Button,
+	Alert,
+	Typography,
+	message,
+	Divider,
+} from "antd";
 import axios from "axios";
 import { UseUser } from "../../context/AuthContext";
 import { Link, Navigate } from "react-router-dom";
 import { useState } from "react";
 import { GoogleCredentialResponse, GoogleLogin } from "@react-oauth/google";
 import { User } from "../../types";
+import "./styles.css";
 
 interface LoginError {
 	msg?: string;
@@ -81,16 +91,20 @@ const Login = () => {
 			}}
 		>
 			<Card style={{ width: 500 }} title="Login">
-				<GoogleLogin
-					onSuccess={responseMessage}
-					// @ts-ignore
-					onError={errorMessage}
-					useOneTap
-					use_fedcm_for_prompt={true}
-					auto_select
-					text="continue_with"
-					// ux_mode="redirect"
-				/>
+				<div className="google-login-container">
+					<GoogleLogin
+						onSuccess={responseMessage}
+						// @ts-ignore
+						onError={errorMessage}
+						useOneTap
+						use_fedcm_for_prompt={true}
+						auto_select
+						text="continue_with"
+						// ux_mode="redirect"
+						width={300}
+					/>
+				</div>
+				<Divider />
 				<Form onFinish={onFinish}>
 					<Form.Item
 						name={"email"}
