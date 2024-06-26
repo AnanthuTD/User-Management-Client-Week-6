@@ -13,11 +13,16 @@ const Dashboard = React.lazy(() => import("./pages/user/Dashboard"));
 const SignUp = React.lazy(() => import("./pages/auth/SignUp"));
 const CreateUser = React.lazy(() => import("./pages/admin/CreateUser"));
 const Home = React.lazy(() => import("./pages/home/Home"));
+const Privacy = React.lazy(() => import("./pages/policy/Privacy"));
 
 const router = createBrowserRouter([
 	{
 		path: "/",
 		element: <Home />,
+	},
+	{
+		path: "/privacy",
+		element: <Privacy />,
 	},
 	{
 		element: (
