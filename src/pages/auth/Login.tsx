@@ -1,8 +1,10 @@
-import { Card, Form, Input, Button, Alert, Typography } from "antd";
+import { Card, Form, Input, Button, Alert, Typography, message } from "antd";
 import axios from "axios";
 import { UseUser } from "../../context/AuthContext";
 import { Link, Navigate } from "react-router-dom";
 import { useState } from "react";
+import { GoogleCredentialResponse, GoogleLogin } from "@react-oauth/google";
+import { User } from "../../types";
 
 interface LoginError {
 	msg?: string;
@@ -34,6 +36,36 @@ const Login = () => {
 		}
 	};
 
+	const responseMessage = async (response: GoogleCredentialResponse) => {
+		try {
+			const { data } = await axios.post(
+				"/api/auth/sign-in/google",
+				response
+			);
+			const { user }: { user: User } = data;
+			if (user) {
+				setUser(user);
+			}
+		} catch (error) {
+			if (axios.isAxiosError(error) && error.response) {
+				setError(error.response.data);
+				console.error(error.response.data.msg);
+			} else {
+				setError({ msg: "unexpected error" });
+				console.error(error);
+			}
+		}
+	};
+
+	const errorMessage = (error: {
+		error: string;
+		error_description?: string;
+		error_uri?: string;
+	}) => {
+		message.error(error.error);
+		console.error(error);
+	};
+
 	return user ? (
 		<Navigate
 			to={user.role === "admin" ? "/admin/user" : "/dashboard"}
@@ -49,6 +81,15 @@ const Login = () => {
 			}}
 		>
 			<Card style={{ width: 500 }} title="Login">
+				<GoogleLogin
+					onSuccess={responseMessage}
+					onError={errorMessage}
+					useOneTap
+					use_fedcm_for_prompt={true}
+					auto_select
+					text="continue_with"
+					// ux_mode="redirect"
+				/>
 				<Form onFinish={onFinish}>
 					<Form.Item
 						name={"email"}

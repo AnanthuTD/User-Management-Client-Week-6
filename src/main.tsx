@@ -5,6 +5,7 @@ import Layout from "./pages/Layout";
 import "./index.css";
 import AuthProvider from "./context/AuthContext";
 import SuspenseWrapper from "./components/SuspenseWraper";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const UserManagement = React.lazy(() => import("./pages/admin/Dashboard"));
 const Login = React.lazy(() => import("./pages/auth/Login"));
@@ -94,7 +95,12 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
-	<React.StrictMode>
-		<RouterProvider router={router} future={{ v7_startTransition: true }} />
-	</React.StrictMode>
+	<GoogleOAuthProvider clientId={import.meta.env.VITE_CLIENT_ID}>
+		<React.StrictMode>
+			<RouterProvider
+				router={router}
+				future={{ v7_startTransition: true }}
+			/>
+		</React.StrictMode>
+	</GoogleOAuthProvider>
 );
