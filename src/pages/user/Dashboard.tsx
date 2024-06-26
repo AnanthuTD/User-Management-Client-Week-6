@@ -3,6 +3,7 @@ import { UserOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { UseUser } from "../../context/AuthContext";
+import { googleLogout } from "@react-oauth/google";
 
 interface FormData {
 	firstName: string;
@@ -32,6 +33,7 @@ const Profile = () => {
 		try {
 			await axios.post("/api/auth/logout");
 			setUser(null);
+			googleLogout();
 			message.success("Logged out successfully");
 			navigate("/login");
 		} catch (error) {
