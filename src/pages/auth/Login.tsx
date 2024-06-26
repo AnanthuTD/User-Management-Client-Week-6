@@ -48,7 +48,7 @@ const Login = () => {
 				height: "100vh",
 			}}
 		>
-			<Card style={{ width: 500 }} title="User Management">
+			<Card style={{ width: 500 }} title="Login">
 				<Form onFinish={onFinish}>
 					<Form.Item
 						name={"email"}
