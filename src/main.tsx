@@ -3,48 +3,86 @@ import * as ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./pages/Layout";
 import "./index.css";
-import UserManagement from "./pages/admin/Dashboard";
-import Login from "./pages/auth/Login";
 import AuthProvider from "./context/AuthContext";
-import Profile from "./pages/admin/Profile";
-import Dashboard from "./pages/user/Dashboard";
-import SignUp from "./pages/auth/SignUp";
-import CreateUser from "./pages/admin/CreateUser";
+import SuspenseWrapper from "./components/SuspenseWraper";
+
+const UserManagement = React.lazy(() => import("./pages/admin/Dashboard"));
+const Login = React.lazy(() => import("./pages/auth/Login"));
+const Profile = React.lazy(() => import("./pages/admin/Profile"));
+const Dashboard = React.lazy(() => import("./pages/user/Dashboard"));
+const SignUp = React.lazy(() => import("./pages/auth/SignUp"));
+const CreateUser = React.lazy(() => import("./pages/admin/CreateUser"));
+const Home = React.lazy(() => import("./pages/home/Home"));
 
 const router = createBrowserRouter([
 	{
 		path: "/",
-		element: <AuthProvider />,
+		element: <Home />,
+	},
+	{
+		element: (
+			<SuspenseWrapper>
+				<AuthProvider />
+			</SuspenseWrapper>
+		),
 		children: [
 			{
 				path: "sign-up",
-				element: <SignUp />,
+				element: (
+					<SuspenseWrapper>
+						<SignUp />
+					</SuspenseWrapper>
+				),
 			},
 			{
 				path: "login",
-				element: <Login />,
-			},
-			{
-				path: "admin",
-				element: <Layout />,
-				children: [
-					{
-						path: "user",
-						element: <UserManagement />,
-					},
-					{
-						path: "profile",
-						element: <Profile />,
-					},
-					{
-						path: "create-user",
-						element: <CreateUser />,
-					},
-				],
+				element: (
+					<SuspenseWrapper>
+						<Login />
+					</SuspenseWrapper>
+				),
 			},
 			{
 				path: "dashboard",
-				element: <Dashboard />,
+				element: (
+					<SuspenseWrapper>
+						<Dashboard />
+					</SuspenseWrapper>
+				),
+			},
+			{
+				path: "admin",
+				element: (
+					<SuspenseWrapper>
+						<Layout />
+					</SuspenseWrapper>
+				),
+				children: [
+					{
+						path: "",
+						element: (
+							<SuspenseWrapper>
+								<Profile />
+							</SuspenseWrapper>
+						),
+					},
+					{
+						path: "user",
+						element: (
+							<SuspenseWrapper>
+								<UserManagement />
+							</SuspenseWrapper>
+						),
+					},
+					{
+						path: "create-user",
+						element: (
+							<SuspenseWrapper>
+								<CreateUser />
+							</SuspenseWrapper>
+						),
+					},
+				],
 			},
 		],
 	},

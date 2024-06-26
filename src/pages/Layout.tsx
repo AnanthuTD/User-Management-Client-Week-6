@@ -6,7 +6,7 @@ const { Header, Content } = Layout;
 
 const items = [
 	{ key: "user", label: <Link to={"/admin/user"}>User</Link> },
-	{ key: "profile", label: <Link to={"/admin/profile"}>Profile</Link> },
+	{ key: "profile", label: <Link to={"/admin"}>Profile</Link> },
 	{ key: "create-user", label: <Link to={"/admin/create-user"}>User Creation</Link> },
 ];
 

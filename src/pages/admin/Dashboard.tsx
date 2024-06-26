@@ -1,24 +1,21 @@
-// @ts-ignore
-
-import React, { useEffect, useState, useRef } from "react";
-import {
-	Table,
-	Form,
-	Typography,
-	Popconfirm,
-	Button,
-	InputNumber,
-	Input,
-	Select,
-	message,
-} from "antd";
-import type { TableColumnsType, TableProps } from "antd";
+import React, { useEffect, useState, useRef, lazy } from "react";
+import { message, Spin, Form } from "antd";
+import type { InputRef, TableColumnType, TableProps } from "antd";
 import axios from "axios";
 import { User } from "../../types";
 import { UseUser } from "../../context/AuthContext";
-import { InputRef, TableColumnType, Space } from "antd";
 import { FilterDropdownProps } from "antd/es/table/interface";
-import { SearchOutlined } from "@ant-design/icons";
+
+const Table = lazy(() => import("antd/lib/table/Table"));
+const Result = lazy(() => import("antd/lib/result"));
+const Select = lazy(() => import("antd/lib/select"));
+const InputNumber = lazy(() => import("antd/lib/input-number"));
+const Popconfirm = lazy(() => import("antd/lib/popconfirm"));
+const TypoLink = lazy(() => import("antd/lib/typography/Link"));
+const Input = lazy(() => import("antd/lib/input"));
+const Button = lazy(() => import("antd/lib/button"));
+const SearchOutlined = lazy(() => import("@ant-design/icons/SearchOutlined"));
+const Space = lazy(() => import("antd/lib/space"));
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
 	editing: boolean;
@@ -31,18 +28,16 @@ interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
 	fallbackDataIndex: string;
 }
 
-interface ExtendedUser extends User{
+interface ExtendedUser extends User {
 	lastName: string;
 	firstName: string;
 }
 
 interface EditableColumnType
-	extends Omit<TableColumnsType<User>[number], "children"> {
+	extends Omit<TableColumnType<User>, "children"> {
 	[x: string]: unknown;
 	editable?: boolean;
 	fallBackDataIndex?: string;
-	// dataIndex?: string;
-	// title: string;
 }
 
 const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
@@ -104,6 +99,7 @@ const App: React.FC = () => {
 	const [form] = Form.useForm();
 	const [data, setData] = useState<User[] | []>([]);
 	const [editingKey, setEditingKey] = useState("");
+	const [dataLoading, setDataLoading] = useState(true);
 	const { user } = UseUser();
 	const searchInput = useRef<InputRef>(null);
 
@@ -193,6 +189,8 @@ const App: React.FC = () => {
 			if (axios.isAxiosError(error) && error.response?.data) {
 				message.error(error.response.data.msg || "something went wrong!");
 			}
+		} finally {
+			setDataLoading(false);
 		}
 	}
 
@@ -329,12 +327,12 @@ const App: React.FC = () => {
 				const editable = isEditing(record);
 				return editable ? (
 					<span>
-						<Typography.Link
+						<TypoLink
 							onClick={() => save(record._id)}
 							style={{ marginRight: 8 }}
 						>
 							Save
-						</Typography.Link>
+						</TypoLink>
 						<Popconfirm title="Sure to cancel?" onConfirm={cancel}>
 							<a>Cancel</a>
 						</Popconfirm>
@@ -390,7 +388,18 @@ const App: React.FC = () => {
 		};
 	});
 
-	return (
+	return dataLoading ? (
+		<div
+			style={{
+				display: "flex",
+				justifyContent: "center",
+				alignItems: "center",
+				minHeight: "100vh",
+			}}
+		>
+			<Spin size="large" tip="loading users" />
+		</div>
+	) : data.length ? (
 		<Form form={form} component={false}>
 			<Table
 				components={{
@@ -409,6 +418,15 @@ const App: React.FC = () => {
 				sticky={{ offsetHeader: 64 }}
 			/>
 		</Form>
+	) : (
+		<Result
+			title="No user found!"
+			extra={
+				<Button type="primary" key="console">
+					Go Console
+				</Button>
+			}
+		/>
 	);
 };
 

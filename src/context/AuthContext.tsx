@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { User } from "../types";
+import { Spin } from "antd";
 
 interface AuthContextType {
 	user: User | null;
@@ -17,9 +18,9 @@ function AuthProvider() {
 	const [authUser, setAuthUser] = useState<User | null>(null);
 	const [isAuthenticating, setAuthenticating] = useState(true);
 	const navigate = useNavigate();
-	
+
 	useEffect(() => {
-		async function authenticateUser(): Promise<void> {
+		const authenticateUser = async (): Promise<void> => {
 			try {
 				const response = await axios.get("/api/auth", {
 					withCredentials: true,
@@ -27,31 +28,31 @@ function AuthProvider() {
 
 				if (response.data?.user) {
 					setAuthUser(response.data.user);
-				} else throw new Error("no user found");
+				} else {
+					throw new Error("No user found");
+				}
 			} catch (error) {
 				navigate("/login", { replace: true });
 			} finally {
 				setAuthenticating(false);
 			}
-		}
+		};
+
 		authenticateUser();
 	}, [navigate]);
 
 	return (
-		<>
-			{!isAuthenticating ? (
-				<AuthContext.Provider
-					value={
-						{
-							user: authUser,
-							setUser: setAuthUser,
-						} satisfies AuthContextType
-					}
-				>
-					<Outlet />
-				</AuthContext.Provider>
-			) : null}
-		</>
+		<Spin spinning={isAuthenticating} size="large" tip="authenticating">
+			<div style={{ height: "100vh"}}>
+				{!isAuthenticating && (
+					<AuthContext.Provider
+						value={{ user: authUser, setUser: setAuthUser }}
+					>
+						<Outlet />
+					</AuthContext.Provider>
+				)}
+			</div>
+		</Spin>
 	);
 }
 
