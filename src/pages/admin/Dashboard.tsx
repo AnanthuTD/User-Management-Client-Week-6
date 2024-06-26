@@ -33,8 +33,7 @@ interface ExtendedUser extends User {
 	firstName: string;
 }
 
-interface EditableColumnType
-	extends Omit<TableColumnType<User>, "children"> {
+interface EditableColumnType extends Omit<TableColumnType<User>, "children"> {
 	[x: string]: unknown;
 	editable?: boolean;
 	fallBackDataIndex?: string;
@@ -422,8 +421,8 @@ const App: React.FC = () => {
 		<Result
 			title="No user found!"
 			extra={
-				<Button type="primary" key="console">
-					Go Console
+				<Button type="primary" key="console" onClick={loadUser}>
+					Reload Data
 				</Button>
 			}
 		/>
