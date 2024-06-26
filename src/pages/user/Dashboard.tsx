@@ -19,9 +19,8 @@ const Profile = () => {
 
 	const onFinish = async (values: FormData) => {
 		try {
-			await axios.put("/api/user/profile", values);
-			const response = await axios.get("/api/auth");
-			setUser(response.data.user);
+			const {data} = await axios.put("/api/user/profile", values);
+			setUser(data.profile);
 			message.success("Profile updated successfully");
 		} catch (error) {
 			console.error("Failed to update profile:", error);

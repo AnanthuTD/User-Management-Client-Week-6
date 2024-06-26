@@ -17,11 +17,10 @@ const Profile = () => {
 	const { user, setUser } = UseUser();
 	const navigate = useNavigate();
 
-	const onFinish = async (values:FormData) => {
+	const onFinish = async (values: FormData) => {
 		try {
-			await axios.put("/api/admin/profile", values);
-			const response = await axios.get("/api/auth");
-			setUser(response.data.user);
+			const { data } = await axios.put("/api/admin/profile", values);
+			setUser(data.profile);
 			message.success("Profile updated successfully");
 		} catch (error) {
 			console.error("Failed to update profile:", error);
