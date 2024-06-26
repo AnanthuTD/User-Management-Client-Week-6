@@ -281,7 +281,7 @@ const App: React.FC = () => {
 			width: 100,
 			dataIndex: "_id",
 			key: "_id",
-			fixed: "left",
+			// fixed: "left",
 			...getColumnSearchProps("_id"),
 		},
 		{
@@ -321,7 +321,7 @@ const App: React.FC = () => {
 		{
 			title: "Action",
 			key: "operation",
-			fixed: "right",
+			// fixed: "right",
 			width: 100,
 			render: (_: string, record: User) => {
 				const editable = isEditing(record);
