@@ -1,4 +1,4 @@
-import { Form, Input, Button, Card, Avatar, message } from "antd";
+import { Form, Input, Button, Card, Avatar, message, Typography } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -50,7 +50,21 @@ const Profile = () => {
 				height: "100vh",
 			}}
 		>
-			<Card style={{ width: 500 }}>
+			<Card
+				style={{ width: 500 }}
+				title={
+					<Typography.Title level={3}>
+						Welcome back{" "}
+						<Typography.Title
+							level={3}
+							italic
+							style={{ display: "inline-block" }}
+						>
+							{user?.name.firstName + " " + user?.name.lastName}
+						</Typography.Title>
+					</Typography.Title>
+				}
+			>
 				<div
 					style={{
 						display: "flex",
