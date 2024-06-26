@@ -53,7 +53,7 @@ const Profile = () => {
 			<Card
 				style={{ width: 500 }}
 				title={
-					<Typography.Title level={3}>
+					<Typography.Title level={4}>
 						Welcome back{" "}
 						<Typography.Title
 							level={3}
